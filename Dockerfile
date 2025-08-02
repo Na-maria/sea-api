@@ -3,7 +3,8 @@
 ###########
 
 # pull official base image
-FROM python:3.8-slim-buster AS builder
+# --- CHANGE THIS LINE ---
+FROM python:3.8-slim-bullseye AS builder
 
 ENV TZ=America/Sao_Paulo
 
@@ -20,13 +21,14 @@ ENV PIPENV_VENV_IN_PROJECT=1
 
 # install dependencies
 RUN pip install pipenv
+# This command will now work because it's running on Bullseye
 RUN apt-get update && apt-get install -y --no-install-recommends \
   build-essential \
   git \
   libpq-dev \
   libffi-dev \
   cargo \
-  openssl \ 
+  openssl \
   netcat-openbsd \
   libxss1 \
   gcc \
@@ -47,10 +49,12 @@ RUN pipenv lock && pipenv install --deploy --ignore-pipfile
 #########
 
 # pull official base image
-FROM python:3.8-slim-buster
+# --- ALSO CHANGE THIS LINE ---
+FROM python:3.8-slim-bullseye
 
 ENV TZ=America/Sao_Paulo
 
+# This command will also work now
 RUN apt-get update && apt-get install -y --no-install-recommends \
   build-essential \
   git \
@@ -82,6 +86,7 @@ COPY ./ .
 # run entrypoint.sh
 RUN chmod +x /usr/app/entrypoint.sh
 RUN pip install pyppeteer
+# pyppeteer-install might download its own version of chromium, which is fine
 RUN pyppeteer-install
 
 EXPOSE 5000
